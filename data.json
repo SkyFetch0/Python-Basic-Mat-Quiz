@@ -1,0 +1,24 @@
+{
+    "quiz": [
+        {
+            "name":"math",
+            "type":"random",
+            "settings":{
+                "sname":"Çarpma",
+                "min":1,
+                "max":10,
+                "operation":"*"
+            }
+        },
+        {
+            "name":"math",
+            "type":"random",
+            "settings":{
+                "sname":"Toplama",
+                "min":1,
+                "max":90,
+                "operation":"+"
+            }
+        }
+    ]
+}
