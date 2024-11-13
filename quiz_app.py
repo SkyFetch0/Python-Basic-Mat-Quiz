@@ -65,9 +65,11 @@ class MathQuizApp:
 
     def initialize_state(self):
         self.correct_answer = 0
+        self.correct_answer_2 = 0
         self.statistics = Statistics()
         self.active_timers = []
         self.used_questions = set()
+        self.stype = 0
 
     def start_quiz(self):
         self.get_question()
@@ -100,6 +102,25 @@ class MathQuizApp:
             self.question_label.config(
                 text=f"{result['num1']} {result['operation']} {result['num2']}"
             )
+        elif question_data['type'] == 'custom':
+            settings = question_data['settings']
+            options = settings['options']
+            question = settings['question']
+            answer = settings['answer']
+            opt = ""
+            for option in options:
+                ops = option['display']
+                opt += f"{ops} "
+
+            self.stype = 1
+            self.correct_answer = answer
+            self.correct_answer_2 = settings['answer2']
+            print(self.correct_answer)
+            self.question_label.config(
+                text=f"{question}\n {opt}"
+            )
+
+
 
     def check_answer(self):
         user_input = self.answer_entry.get().strip()
@@ -114,6 +135,36 @@ class MathQuizApp:
                 fg="orange"
             )
             return
+
+        if self.stype == 1:
+            try:
+                user_answer = user_input.lower()
+                if user_answer.isnumeric():
+                    user_answer = int(user_answer)
+                    final = self.correct_answer_2
+                else:
+                    user_answer = user_answer.lower()
+                    final = self.correct_answer.lower()
+
+
+                if user_answer == final:
+                    self.message_label.config(text="Doğru Bildin!", fg="green")
+                    self.statistics.update(True)
+                    for timer in self.active_timers:
+                        timer.cancel()
+                    self.active_timers.clear()
+                    self.ask_question_periodically()
+                    self.root.withdraw()
+                else:
+                    self.message_label.config(text="Yanlış Bildin Tekrar Dene!", fg="red")
+                    self.statistics.update(False)
+
+                self.stats_label.config(text=self.statistics.get_stats_text())
+
+            except ValueError:
+                self.message_label.config(text="Geçerli bir sayı girin.", fg="red")
+
+            self.answer_entry.delete(0, tk.END)
 
         try:
             user_answer = float(user_input)

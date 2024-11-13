@@ -1,23 +1,31 @@
 {
     "quiz": [
+
         {
             "name":"math",
-            "type":"random",
+            "type":"custom",
             "settings":{
-                "sname":"Çarpma",
-                "min":1,
-                "max":10,
-                "operation":"*"
-            }
-        },
-        {
-            "name":"math",
-            "type":"random",
-            "settings":{
-                "sname":"Toplama",
-                "min":1,
-                "max":90,
-                "operation":"+"
+                "sname":"xname",
+                "question": "245 + 1 Sorusunun Cevabı Nedir?",
+                "options":[
+                    {
+                        "name": "a",
+                        "display": "A)247",
+                        "select": 247
+                    },
+                        {
+                        "name": "b",
+                        "display": "B)145",
+                        "select": 145
+                    },
+                        {
+                        "name": "c",
+                        "display": "C)246",
+                        "select": 246
+                    }
+                ],
+                "answer": "C",
+                "answer2": 246
             }
         }
     ]
