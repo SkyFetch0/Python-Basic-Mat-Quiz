@@ -49,42 +49,54 @@ def check_libraries():
         return True
 
 def update_system():
-    print(Fore.YELLOW + "Sistem Güncelleniyor..." + Fore.RESET)
-    path = os.path.dirname(__file__) + "/"
-    backup_folder = path + "backup/"
-    os.makedirs(backup_folder, exist_ok=True)
-    print(os.listdir(backup_folder))
-    config = path + "config.py"
-    # Old Backup Code
+    try:
+        print(Fore.YELLOW + "Sistem Güncelleniyor..." + Fore.RESET)
+        path = os.path.dirname(__file__) + "/"
+        backup_folder = path + "backup/"
+        update_folder = path + "update/"
 
-    #mains = path + "main.py"
-    #math_operations = path + "math_operation.py"
-    #quiz_app = path + "quiz_app.py"
-    #utils = path + "utils.py"
-    #config = path + "config.py"
+        os.makedirs(backup_folder, exist_ok=True)
 
-    #shutil.copy(mains, backup_folder)
-    #shutil.copy(math_operations, backup_folder)
-    #shutil.copy(quiz_app, backup_folder)
-    #shutil.copy(utils, backup_folder)
-    #shutil.copy(utils, backup_folder)
+        for file in os.listdir(path):
+            if file.endswith('.py'):
+                shutil.copy2(os.path.join(path, file), backup_folder)
 
-        #New Backup Code
-    backup_files = ['main.py','math_operation.py','quiz_app.py','utils.py','config.py']
-    for file in backup_files:
-        if os.path.exists(path + file):
-            shutil.copy(path + file, backup_folder)
+        if os.path.exists(update_folder):
+            shutil.rmtree(update_folder)
+        os.makedirs(update_folder)
 
-    repo_url = "https://github.com/SkyFetch0/Python-Basic-Mat-Quiz"
-    local_path = path + "update"
-    os.makedirs(local_path, exist_ok=True)
-    repo = git.Repo.clone_from(repo_url, local_path)
-    print(f"Güncel Dosyalar indi konum: " + local_path)
-    
-    shutil.move(local_path,path)
+        repo_url = "https://github.com/SkyFetch0/Python-Basic-Mat-Quiz"
+        repo = git.Repo.clone_from(repo_url, update_folder)
+        print(f"Güncel Dosyalar indi konum: {update_folder}")
 
-    print(Fore.GREEN + " Başarıyla Güncelleme Yapıldı! Uygulama Yeniden Başlatılıyor!" + Fore.RESET)
-    os.execv(sys.executable, ['python'] + sys.argv)
+        for item in os.listdir(update_folder):
+            source = os.path.join(update_folder, item)
+            destination = os.path.join(path, item)
+            
+            if os.path.isdir(source) and item != '.git':
+                if os.path.exists(destination):
+                    shutil.rmtree(destination)
+                shutil.copytree(source, destination)
+            elif os.path.isfile(source):
+                if os.path.exists(destination):
+                    os.remove(destination)
+                shutil.copy2(source, destination)
+
+        shutil.rmtree(update_folder)
+
+        print(Fore.GREEN + "Başarıyla Güncelleme Yapıldı! Uygulama Yeniden Başlatılıyor!" + Fore.RESET)
+        os.execv(sys.executable, ['python'] + sys.argv)
+
+    except Exception as e:
+        print(Fore.RED + f"Güncelleme sırasında hata oluştu: {str(e)}" + Fore.RESET)
+        try:
+            for file in os.listdir(backup_folder):
+                backup_file = os.path.join(backup_folder, file)
+                if os.path.exists(backup_file):
+                    shutil.copy2(backup_file, path + file)
+            print(Fore.YELLOW + "Yedekler geri yüklendi." + Fore.RESET)
+        except Exception as restore_error:
+            print(Fore.RED + f"Yedek geri yükleme hatası: {str(restore_error)}" + Fore.RESET)
 
 
 
