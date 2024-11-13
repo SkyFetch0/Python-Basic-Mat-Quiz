@@ -5,7 +5,8 @@ APP_SETTINGS = {
     'QUESTION_FONT_SIZE': 24,
     'BUTTON_FONT_SIZE': 20,
     'MESSAGE_FONT_SIZE': 18,
-    'UPDATE_SERVER': "http://localhost/quize/update.php",
+    'UPDATE_SERVER': "UPDATE_API",
+    'QUIZ_API': "QUIZ_API",
     'APP_VERSION': 1.2,
 }
 

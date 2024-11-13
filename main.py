@@ -1,3 +1,4 @@
+import json
 import stat
 import tkinter as tk
 from quiz_app import MathQuizApp
@@ -133,13 +134,22 @@ def check_update():
     print(Fore.RESET + "Versiyon: " + Fore.YELLOW + str(APP_SETTINGS['APP_VERSION']) + Fore.RESET)
 
 
+
+def update_quiz():
+    response = requests.get(APP_SETTINGS['QUIZ_API'])
+    data = response.json()
+    with open('./data.json', 'w') as file:
+        file.write(json.dumps(data))
+
 def main():
     check = check_libraries()
     check_update()
+    update_quiz()
     if check:
         root = tk.Tk()
         app = MathQuizApp(root)
         root.mainloop()
+
 
 
 if __name__ == "__main__":
