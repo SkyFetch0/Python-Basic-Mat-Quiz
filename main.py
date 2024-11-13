@@ -1,3 +1,4 @@
+import stat
 import tkinter as tk
 from quiz_app import MathQuizApp
 from config import APP_SETTINGS
@@ -7,6 +8,7 @@ import git
 import shutil
 import os
 import sys
+import gc
 def check_libraries():
     required_libraries = {
         'tkinter': 'GUI için temel kütüphane',
@@ -48,6 +50,16 @@ def check_libraries():
         print(Fore.GREEN + "\nTüm gerekli kütüphaneler yüklü!")
         return True
 
+def remove_readonly(func, path, _):
+    """Salt okunur özelliğini kaldır ve işlemi tekrar dene"""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+def safe_remove_directory(directory):
+    """Güvenli bir şekilde dizini sil"""
+    if os.path.exists(directory):
+        shutil.rmtree(directory, onerror=remove_readonly)
+
 def update_system():
     try:
         print(Fore.YELLOW + "Sistem Güncelleniyor..." + Fore.RESET)
@@ -61,9 +73,8 @@ def update_system():
             if file.endswith('.py'):
                 shutil.copy2(os.path.join(path, file), backup_folder)
 
-        if os.path.exists(update_folder):
-            shutil.rmtree(update_folder)
-        os.makedirs(update_folder)
+        safe_remove_directory(update_folder)
+        os.makedirs(update_folder, exist_ok=True)
 
         repo_url = "https://github.com/SkyFetch0/Python-Basic-Mat-Quiz"
         repo = git.Repo.clone_from(repo_url, update_folder)
@@ -72,20 +83,25 @@ def update_system():
         for item in os.listdir(update_folder):
             source = os.path.join(update_folder, item)
             destination = os.path.join(path, item)
-            
-            if os.path.isdir(source) and item != '.git':
-                if os.path.exists(destination):
-                    shutil.rmtree(destination)
-                shutil.copytree(source, destination)
-            elif os.path.isfile(source):
-                if os.path.exists(destination):
-                    os.remove(destination)
-                shutil.copy2(source, destination)
+            if item == '.git':
+                continue
+                
+            try:
+                if os.path.isdir(source):
+                    if os.path.exists(destination):
+                        safe_remove_directory(destination)
+                    shutil.copytree(source, destination)
+                else:
+                    if os.path.exists(destination):
+                        os.remove(destination)
+                    shutil.copy2(source, destination)
+            except Exception as copy_error:
+                print(f"Dosya kopyalama hatası ({item}): {str(copy_error)}")
 
-        shutil.rmtree(update_folder)
-
+        safe_remove_directory(update_folder)
         print(Fore.GREEN + "Başarıyla Güncelleme Yapıldı! Uygulama Yeniden Başlatılıyor!" + Fore.RESET)
-        os.execv(sys.executable, ['python'] + sys.argv)
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
 
     except Exception as e:
         print(Fore.RED + f"Güncelleme sırasında hata oluştu: {str(e)}" + Fore.RESET)
@@ -97,8 +113,6 @@ def update_system():
             print(Fore.YELLOW + "Yedekler geri yüklendi." + Fore.RESET)
         except Exception as restore_error:
             print(Fore.RED + f"Yedek geri yükleme hatası: {str(restore_error)}" + Fore.RESET)
-
-
 
 
 def check_update():
