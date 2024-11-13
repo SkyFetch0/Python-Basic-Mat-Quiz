@@ -3,12 +3,14 @@ import tkinter as tk
 from quiz_app import MathQuizApp
 from config import APP_SETTINGS
 import requests
-from colorama import Fore,Back,Style
+from colorama import Fore, Back, Style
 import git
 import shutil
 import os
 import sys
 import gc
+
+
 def check_libraries():
     required_libraries = {
         'tkinter': 'GUI için temel kütüphane',
@@ -38,7 +40,7 @@ def check_libraries():
         print(Fore.YELLOW + lib)
 
     if missing_libraries:
-        print(Fore.RED+"\nEksik Kütüphaneler:")
+        print(Fore.RED + "\nEksik Kütüphaneler:")
         for lib in missing_libraries:
             print(lib)
         print("\nEksik kütüphaneleri yüklemek için:")
@@ -50,15 +52,18 @@ def check_libraries():
         print(Fore.GREEN + "\nTüm gerekli kütüphaneler yüklü!")
         return True
 
+
 def remove_readonly(func, path, _):
     """Salt okunur özelliğini kaldır ve işlemi tekrar dene"""
     os.chmod(path, stat.S_IWRITE)
     func(path)
 
+
 def safe_remove_directory(directory):
     """Güvenli bir şekilde dizini sil"""
     if os.path.exists(directory):
         shutil.rmtree(directory, onerror=remove_readonly)
+
 
 def update_system():
     try:
@@ -85,7 +90,7 @@ def update_system():
             destination = os.path.join(path, item)
             if item == '.git':
                 continue
-                
+
             try:
                 if os.path.isdir(source):
                     if os.path.exists(destination):
@@ -116,7 +121,6 @@ def update_system():
 
 
 def check_update():
-
     response = requests.get(APP_SETTINGS['UPDATE_SERVER'])
     data = response.json()
     version = data['version']
@@ -126,13 +130,16 @@ def check_update():
     else:
         print(Fore.GREEN + "Versiyon Güncel!")
 
-    print(Fore.RESET + "Versiyon: " + Fore.YELLOW+ str(APP_SETTINGS['APP_VERSION']) + Fore.RESET)
-
+    print(Fore.RESET + "Versiyon: " + Fore.YELLOW + str(APP_SETTINGS['APP_VERSION']) + Fore.RESET)
 
 
 def main():
     check = check_libraries()
     check_update()
+    if check:
+        root = tk.Tk()
+        app = MathQuizApp(root)
+        root.mainloop()
 
 
 if __name__ == "__main__":
