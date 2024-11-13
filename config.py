@@ -6,7 +6,7 @@ APP_SETTINGS = {
     'BUTTON_FONT_SIZE': 20,
     'MESSAGE_FONT_SIZE': 18,
     'UPDATE_SERVER': "http://localhost/quize/update.php",
-    'APP_VERSION': 1.1,
+    'APP_VERSION': 1.2,
 }
 
 # Quiz Settings
